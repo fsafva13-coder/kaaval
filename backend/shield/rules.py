@@ -37,7 +37,16 @@ INJECTION = re.compile(
 YOUR = re.compile(r"\b(your|ur|ninte|ningalude|ninde|apna|apni|aapka|aapki|tumhara|ta3ak|taba3ak)\b", re.I)
 GIVE = re.compile(
     r"\b(send|share|give|tell|forward|provide|ayakku|ayachu|tharu|thaa|tha|para|parayu|"
-    r"bhejo|batao|dedo|3tini|a3tini|ersel|ersil|ib3at)\b",
+    r"bhejo|batao|dedo|3tini|a3tini|ersel|ersil|ib3at|sent|snd|sned|giv|gimme|plz|pls)\b",
+    re.I,
+)
+
+# Innocent: a customer talking about THEIR OWN code ("my OTP isn't coming").
+OWN_CREDENTIAL = re.compile(
+    r"\b(my|ente|mera|meri|mine)\s+(otp|pin|cvv|card|password|passcode)|"
+    r"\botp\s+(is\s*n.?t|not|illa|varunnilla|vannilla|didn.?t)|"
+    r"(didn.?t|did\s+not|haven.?t|not)\s+(get|got|receive|received)\s+(the\s+|an?\s+|my\s+)?otp|"
+    r"\bi\s+(got|received|have)\s+(the\s+|an?\s+)?otp",
     re.I,
 )
 
@@ -99,10 +108,13 @@ def screen(text: str) -> dict:
     hit(INJECTION, "injection")
     hit(REDIRECT, "payment_redirect")
 
-    # Credentials/identity only count when asked FROM the owner.
-    asks_owner = bool(YOUR.search(text) or GIVE.search(text))
-    if asks_owner:
+    # A shop never needs a customer to mention the owner's OTP/PIN/CVV/password,
+    # so any such mention counts, unless it is clearly about the customer's own.
+    if not OWN_CREDENTIAL.search(text):
         hit(CREDENTIAL, "credential")
+    # Identity documents only count when asked FROM the owner
+    # ("do you need my passport?" is innocent).
+    if YOUR.search(text) or GIVE.search(text):
         hit(IDENTITY, "identity")
 
     # A customer asking how to pay is innocent unless they also ask for secrets.
