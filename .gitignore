@@ -1,0 +1,19 @@
+# secrets and local data
+.env
+*.db
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+pytest-cache-files-*/
+
+# node
+node_modules/
+dist/
+
+# editors
+.vscode/
+.DS_Store

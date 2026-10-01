@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-ivory: #fbf7f2;
+  --color-blush: #f3dfe0;
+  --color-rose: #b76e79;
+  --color-rose-dark: #8e4f5a;
+  --color-gold: #c2a36b;
+  --color-ink: #2b2326;
+  --color-alarm: #fde8e8;
+  --color-alarm-ink: #9b1c1c;
+}
+
+body {
+  @apply bg-ivory text-ink font-sans antialiased;
+}
