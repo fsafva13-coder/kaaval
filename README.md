@@ -43,12 +43,13 @@ npm install
 ```
 
 ## Usage
-Run each in its own terminal from the project root:
+One command from the project root (with the virtual environment active):
 
 ```bash
-uvicorn backend.main:app --reload --port 8000     # API
-cd frontend && npm run dev                        # web app on http://localhost:5173
+python run.py
 ```
+
+It starts the API and the web app together, opens the chat in your browser, and stops both on Ctrl+C.
 
 - Customer chat: http://localhost:5173
 - Owner dashboard: http://localhost:5173/#/owner (passcode from `.env`)

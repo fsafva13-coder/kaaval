@@ -53,6 +53,18 @@ def main() -> int:
     if blocked:
         print(f"Avg messages before block:      {sum(r[2] for r in blocked) / len(blocked):.1f}")
     print(f"Innocent conversations blocked: {len(wrongly)}  (target: 0)")
+    def lang(name: str) -> str:
+        for key in ["kannur", "injection", "manglish", "malayalam", "arabizi", "hinglish"]:
+            if key in name:
+                return key
+        return "english"
+
+    by_lang: dict[str, list[bool]] = {}
+    for name, was_blocked, _ in fraud:
+        by_lang.setdefault(lang(name), []).append(was_blocked)
+    print("Catch rate by type:")
+    for key, vals in sorted(by_lang.items()):
+        print(f"  {key:<10} {sum(vals)}/{len(vals)}")
     for name, _, _ in [r for r in fraud if not r[1]]:
         print(f"  MISSED fraud: {name}")
     for name, _, _ in wrongly:
