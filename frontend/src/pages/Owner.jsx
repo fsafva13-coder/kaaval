@@ -89,9 +89,25 @@ export default function Owner() {
               <div className="mt-4">
                 <p className="text-xs font-semibold text-ink/60 mb-1">Evidence</p>
                 <ul className="space-y-1">
-                  {(a.verdict.evidence || []).map((q, i) => (
-                    <li key={i} className="text-sm bg-red-50 border-l-2 border-red-400 px-3 py-1.5">“{q}”</li>
-                  ))}
+                  {(a.verdict.evidence || []).map((e, i) => {
+                    const ev = typeof e === "string" ? { quote: e } : e;
+                    return (
+                      <li key={i} className="text-sm bg-red-50 border-l-2 border-red-400 px-3 py-1.5">
+                        <span>“{ev.quote}”</span>
+                        {ev.language && ev.language !== "english" && (
+                          <span className="ml-2 rounded-full bg-white border border-red-200 px-2 py-0.5 text-[11px] text-red-800 align-middle">
+                            {ev.language}
+                          </span>
+                        )}
+                        {ev.english && (
+                          <p className="mt-0.5 text-xs text-ink/60">
+                            {ev.english_kind === "translation" ? "In English: " : "What it asks: "}
+                            {ev.english}
+                          </p>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
                 {a.verdict.tactics?.length > 0 && (
                   <p className="mt-3 text-xs text-ink/60">Signals: {a.verdict.tactics.join(", ")}</p>

@@ -150,3 +150,15 @@ def test_short_typo_otp_demands_are_blocked():
     assert send(sid, did, "sent otp").status_code == 200       # refused once
     assert send(sid, did, "urgent aanu").status_code == 200    # plain urgency never counts
     assert send(sid, did, "sent otp now").status_code == 403   # asked again -> blocked
+
+
+def test_evidence_has_english_line_and_language():
+    sid, did = new_sender()
+    send(sid, did, "bro ninte OTP onnu ayakku")
+    send(sid, did, "This is the bank, your account will be blocked")  # threat after refusal
+    alerts = client.get("/api/owner/alerts", headers=OWNER).json()
+    evidence = [a for a in alerts if a["sender_id"] == sid][0]["verdict"]["evidence"]
+    assert [e["quote"] for e in evidence] == ["bro ninte OTP onnu ayakku", "This is the bank, your account will be blocked"]
+    assert evidence[0]["language"] == "manglish"
+    assert "one-time code" in evidence[0]["english"]
+    assert "pressures" in evidence[1]["english"].lower()

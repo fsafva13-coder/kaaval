@@ -112,6 +112,14 @@ def add_message(sender_id: str, role: str, text: str, screen: dict | None = None
     )
 
 
+def update_last_screen(sender_id: str, screen: dict) -> None:
+    """Replace the stored screening verdict of the sender's latest message."""
+    execute(
+        "UPDATE messages SET screen = ? WHERE id = (SELECT MAX(id) FROM messages WHERE sender_id = ? AND role = 'user')",
+        (json.dumps(screen), sender_id),
+    )
+
+
 def history(sender_id: str, limit: int = 20) -> list[dict]:
     rows = query(
         "SELECT role, text, screen, created_at FROM messages WHERE sender_id = ? ORDER BY id DESC LIMIT ?",

@@ -74,7 +74,12 @@ THREAT = re.compile(
     re.I,
 )
 
-MANGLISH = re.compile(r"\b(ninte|ente|alle|aano|aanu|venam|parayu|tharu|ayakku|chetta|chechi|bro\s+ithu|enthu|entha)\b", re.I)
+MANGLISH = re.compile(
+    r"\b(ninte|ente|ante|alle|aano|aanu|aan|venam|venu|venda|parayu|para|tharu|thaa|ayakku|ayakk|ayakko|"
+    r"chetta|chechi|bro\s+ithu|enthu|entha|vegam|illenkil|ellenkil|ningalude|ningalde|njan|und|ind|"
+    r"cheyyan|cheyth|cheythu|pattumo|engane|enganeya|ippo|oru)\b",
+    re.I,
+)
 HINGLISH = re.compile(r"\b(bhai|kya|hai|nahi|jaldi|bhejo|batao|apna|karo|kar\s+do)\b", re.I)
 ARABIZI = re.compile(r"\b(habibi|yalla|inshallah|wallah|3|7|5ali|ana|enta|enti)\b|[a-z]+[3792][a-z]+", re.I)
 

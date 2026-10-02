@@ -30,6 +30,7 @@ def step(sender: dict, text: str, screen: dict) -> dict:
     pushing = sender["state"] in ("caution", "challenged") and bool(hostile)
     if pushing and not screen["sensitive"]:
         screen = {**screen, "sensitive": True, "categories": ["pressure_after_refusal"], "tactics": screen["pressure"]}
+        db.update_last_screen(sender["sender_id"], screen)
 
     if not screen["sensitive"]:
         db.save_sender(sender)
@@ -57,7 +58,7 @@ def step(sender: dict, text: str, screen: dict) -> dict:
             sender["state"] = "blocked"
             db.block(sender["sender_id"], sender.get("device_id"))
             db.add_alert(sender["sender_id"], verdict)
-            antibodies.learn(verdict.get("evidence", []), source=f"blocked:{sender['sender_id']}")
+            antibodies.learn(confirm.quotes(verdict), source=f"blocked:{sender['sender_id']}")
 
     db.save_sender(sender)
     action = "block" if sender["state"] == "blocked" else "refuse"
