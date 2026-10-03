@@ -1,0 +1,5 @@
+Kaaval evaluation
+Mode: rules + Nemotron via nebius   Groups: innocent, orders   Model calls: 84
+----------------------------------------
+Innocent conversations blocked: 0/29  (target: 0)
+(24 tricky innocent conversations + 5 plain orders, all served)

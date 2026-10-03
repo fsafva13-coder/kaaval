@@ -5,7 +5,8 @@ Each .txt file is one conversation (one customer message per line).
   eval/innocent/  -> must NEVER be blocked
   eval/orders/    -> must NEVER be blocked
 
-Run from the project root:   python -m eval.run_eval
+Run from the project root:   python -m eval.run_eval            (everything)
+                              python -m eval.run_eval fraud      (one group)
 Uses whatever mode .env sets (MOCK_LLM=true is free).
 """
 import os
@@ -16,9 +17,11 @@ from pathlib import Path
 
 os.environ.setdefault("KAAVAL_DB", os.path.join(tempfile.mkdtemp(), "eval.db"))
 os.environ["DAILY_MESSAGE_LIMIT"] = "100000"
+os.environ.setdefault("MOCK_REPLIES", "true")  # test the shield, not the replies
 
 from fastapi.testclient import TestClient  # noqa: E402
 
+from backend import llm  # noqa: E402
 from backend.main import app  # noqa: E402
 
 client = TestClient(app)
@@ -37,22 +40,40 @@ def run_conversation(path: Path) -> tuple[bool, int]:
 
 
 def main() -> int:
-    results = {}
+    results, errors = {}, []
+    wanted = [a for a in sys.argv[1:] if a in ("fraud", "innocent", "orders")] or ["fraud", "innocent", "orders"]
     for group in ["fraud", "innocent", "orders"]:
-        files = sorted((ROOT / group).glob("*.txt"))
-        results[group] = [(f.name, *run_conversation(f)) for f in files]
+        files = sorted((ROOT / group).glob("*.txt")) if group in wanted else []
+        results[group] = []
+        for i, f in enumerate(files, 1):
+            try:
+                was_blocked, n = run_conversation(f)
+            except Exception as exc:
+                print(f"  [{group} {i}/{len(files)}] ERROR    {f.name}: {str(exc)[:120]}", flush=True)
+                errors.append(f.name)
+                continue
+            print(f"  [{group} {i}/{len(files)}] {'BLOCKED ' if was_blocked else 'served  '} {f.name}", flush=True)
+            results[group].append((f.name, was_blocked, n))
 
     fraud = results["fraud"]
     blocked = [r for r in fraud if r[1]]
     wrongly = [r for g in ["innocent", "orders"] for r in results[g] if r[1]]
 
+    mode = "rules only (mock)" if llm.is_mock() else f"rules + Nemotron via {llm.PROVIDER}"
     print("\nKaaval evaluation")
+    print(f"Mode: {mode}   Groups: {', '.join(wanted)}   Model calls: {llm.calls_made}")
     print("-" * 40)
     if fraud:
         print(f"Fraud conversations blocked:    {len(blocked)}/{len(fraud)} ({100 * len(blocked) / len(fraud):.0f}%)")
     if blocked:
         print(f"Avg messages before block:      {sum(r[2] for r in blocked) / len(blocked):.1f}")
-    print(f"Innocent conversations blocked: {len(wrongly)}  (target: 0)")
+    innocent_run = [r for g in ["innocent", "orders"] for r in results[g]]
+    if innocent_run:
+        print(f"Innocent conversations blocked: {len(wrongly)}/{len(innocent_run)}  (target: 0)")
+    else:
+        print("Innocent conversations: not run in this pass")
+    if errors:
+        print(f"Conversations that errored (not counted): {len(errors)}")
     def lang(name: str) -> str:
         for key in ["kannur", "injection", "manglish", "malayalam", "arabizi", "hinglish"]:
             if key in name:

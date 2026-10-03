@@ -29,10 +29,12 @@ tactics from: urgency, impersonation, threat."""
 
 def screen(text: str) -> dict:
     verdict = rules.screen(text)
-    if llm.is_mock():
+    # Rules already flagged it: the stricter verdict would win anyway, so skip
+    # the model call. Nano is spent on what the rules cannot see.
+    if llm.is_mock() or verdict["sensitive"]:
         return verdict
     try:
-        nano = llm.chat_json("nano", NANO_SYSTEM, text, max_tokens=300)
+        nano = llm.chat_json("nano", NANO_SYSTEM, text, max_tokens=1500)
     except llm.BudgetExceeded:
         raise
     except Exception as exc:  # model hiccup: fall back to rules, never crash the chat

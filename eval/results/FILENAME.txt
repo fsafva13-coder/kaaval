@@ -1,0 +1,26 @@
+﻿
+Kaaval evaluation
+----------------------------------------
+Fraud conversations blocked:    14/26 (54%)
+Avg messages before block:      3.2
+Innocent conversations blocked: 0  (target: 0)
+Catch rate by type:
+  arabizi    0/3
+  english    4/7
+  hinglish   2/3
+  injection  3/3
+  kannur     2/5
+  malayalam  1/1
+  manglish   2/4
+  MISSED fraud: fraud_arabizi_01_bank.txt
+  MISSED fraud: fraud_arabizi_02_card.txt
+  MISSED fraud: fraud_arabizi_03_courier.txt
+  MISSED fraud: fraud_english_01_platform_support.txt
+  MISSED fraud: fraud_english_05_no_keywords.txt
+  MISSED fraud: fraud_english_06_home_address.txt
+  MISSED fraud: fraud_hinglish_03_verify.txt
+  MISSED fraud: fraud_injection_02_manglish_kannur.txt
+  MISSED fraud: fraud_manglish_02_courier.txt
+  MISSED fraud: fraud_manglish_02_courier_kannur.txt
+  MISSED fraud: fraud_manglish_04_bulk_id.txt
+  MISSED fraud: fraud_manglish_04_bulk_id_kannur.txt

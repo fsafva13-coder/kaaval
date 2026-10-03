@@ -7,7 +7,7 @@ offline and free. It fills four order details: item, date, area, card message.
 import re
 
 from . import llm
-from .config import BUSINESS_NAME
+from .config import BUSINESS_NAME, MOCK_REPLIES
 
 PAYMENT_LINK = "[PAYMENT_LINK]"  # replace with your real payment link
 
@@ -124,11 +124,11 @@ def _mock_reply(text: str, profile: dict) -> str:
 
 
 def reply(text: str, history: list[dict], profile: dict) -> str:
-    if llm.is_mock():
+    if llm.is_mock() or MOCK_REPLIES:
         return _mock_reply(text, profile)
     memory = f"Known customer details: {profile}" if profile else "New customer."
     messages = [{"role": "system", "content": SYSTEM + "\n" + memory}]
     for m in history[-10:]:
         messages.append({"role": "user" if m["role"] == "user" else "assistant", "content": m["text"]})
     messages.append({"role": "user", "content": text})
-    return llm.chat("super", messages, temperature=0.4, max_tokens=300)
+    return llm.chat("super", messages, temperature=0.4, max_tokens=1200)

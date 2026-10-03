@@ -4,7 +4,7 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-green) ![Nemotron 3](https://img.shields.io/badge/NVIDIA-Nemotron%203-76B900) ![Nebius](https://img.shields.io/badge/Nebius-Token%20Factory-blue) ![Tavily](https://img.shields.io/badge/search-Tavily-orange) ![Track](https://img.shields.io/badge/track-Personal%20AI-purple)
 
 ## Overview
-Personal AI agents now answer customers for small sellers, which makes the agent the new target for fraud. In the Gulf, messages mix Manglish, Arabizi and Hinglish, and English-tuned safety misses these code-mixed attacks. Kaaval runs a seller's customer chat, confirms fraud through a four-step trust ladder, and blocks only confirmed fraudsters, never on a single message. Result: [XX]% of fraud conversations blocked with [0] innocent customers blocked.
+Personal AI agents now answer customers for small sellers, which makes the agent the new target for fraud. In the Gulf, messages mix Manglish, Arabizi and Hinglish, and English-tuned safety misses these code-mixed attacks. Kaaval runs a seller's customer chat, confirms fraud through a four-step trust ladder, and blocks only confirmed fraudsters, never on a single message. On our test set, adding Nemotron raised fraud blocked from 54% to 81% with 0 of 29 innocent conversations blocked.
 
 ## Features
 - **Multilingual fraud shield:** English, Manglish, Arabizi and Hinglish
@@ -90,13 +90,25 @@ kaaval/
 ```
 
 ## Results
-| Metric | Value |
-| --- | --- |
-| Fraud conversations blocked | [XX]% |
-| Innocent conversations blocked | [0] |
-| Median messages before block | [X] |
-| Catch rate: English / Manglish / Arabizi / Hinglish | [XX / XX / XX / XX]% |
-| Unprotected baseline: fraud succeeded | [XX]% |
+Measured on a 55-conversation test set (26 fraud, 24 tricky innocent, 5 plain orders), run on Nebius Token Factory on 3 Oct 2026. Raw outputs are in `eval/results/`.
+
+| Metric | Keyword rules only | Rules + Nemotron |
+| --- | --- | --- |
+| Fraud conversations blocked | 14 / 26 (54%) | **21 / 26 (81%)** |
+| Innocent conversations blocked | 0 / 29 | **0 / 29** |
+| Average messages before a block | 3.2 | 2.9 |
+
+| Fraud type | Rules only | Rules + Nemotron |
+| --- | --- | --- |
+| English | 4 / 7 | 6 / 7 |
+| Standard Manglish | 2 / 4 | 3 / 4 |
+| Kannur-dialect Manglish | 2 / 5 | 4 / 5 |
+| Arabizi | 0 / 3 | 2 / 3 |
+| Hinglish | 2 / 3 | 2 / 3 |
+| Malayalam script | 1 / 1 | 1 / 1 |
+| Hidden instructions to the assistant | 3 / 3 | 3 / 3 |
+
+The test set is small and written by the author, so these numbers show direction, not a benchmark. Reproduce with `python -m eval.run_eval`.
 
 ## Challenges & Learnings
 [Placeholder: telling a customer asking for payment details apart from a fraudster; code-mixed text; tuning for zero false blocks]

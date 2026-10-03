@@ -8,11 +8,13 @@ Two safety features live here:
 import json
 import os
 import re
+import time
 
 from . import db
 from .config import (
     BUDGET_HARD_CAP_USD,
     BUDGET_WARN_USD,
+    MIN_CALL_INTERVAL,
     MOCK_LLM,
     PRICES,
     PROVIDER,
@@ -25,6 +27,8 @@ class BudgetExceeded(Exception):
 
 
 _client = None
+_last_call = 0.0
+calls_made = 0  # model calls in this process (the eval prints it)
 
 
 def is_mock() -> bool:
@@ -66,27 +70,71 @@ def chat(tier: str, messages: list[dict], **kwargs) -> str:
     if db.total_spend() >= BUDGET_HARD_CAP_USD:
         raise BudgetExceeded("Budget cap reached; all model calls are off.")
 
+    global _last_call, calls_made
     model = PROVIDERS[PROVIDER]["models"][tier]
-    resp = _get_client().chat.completions.create(model=model, messages=messages, **kwargs)
+    resp = None
+    for attempt in range(4):
+        wait = MIN_CALL_INTERVAL - (time.time() - _last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _last_call = time.time()
+        try:
+            resp = _get_client().chat.completions.create(model=model, messages=messages, **kwargs)
+            calls_made += 1
+            if not getattr(resp, "choices", None):
+                # Some providers return an error object instead of raising.
+                err = getattr(resp, "error", None) or "empty response"
+                raise RuntimeError(f"429 or provider error from {model}: {err}")
+            break
+        except Exception as exc:  # rate limited: wait and retry
+            if "429" in str(exc) and attempt < 3:
+                time.sleep(15 * (attempt + 1))
+                continue
+            raise
 
     usage = resp.usage
-    if usage is not None:
+    # Only Token Factory costs credits; NVIDIA's developer API is free.
+    if usage is not None and PROVIDER == "nebius":
         p_in, p_out = PRICES[tier]
         cost = (usage.prompt_tokens * p_in + usage.completion_tokens * p_out) / 1_000_000
         db.record_spend(model, cost)
-    return resp.choices[0].message.content or ""
+    msg = resp.choices[0].message
+    text = msg.content or ""
+    if not text.strip():
+        # Reasoning models sometimes put everything in a separate reasoning field
+        # (or run out of tokens while thinking). Use it rather than return nothing.
+        extra = getattr(msg, "model_extra", None) or {}
+        text = getattr(msg, "reasoning", None) or extra.get("reasoning") or extra.get("reasoning_content") or ""
+    return text
+
+
+def _extract_json(text: str) -> dict | None:
+    """Return the last complete top-level JSON object in the text, if any.
+
+    Reasoning models often wrap the answer in thinking text or code fences.
+    """
+    decoder = json.JSONDecoder()
+    found, i = None, 0
+    while (i := text.find("{", i)) != -1:
+        try:
+            obj, end = decoder.raw_decode(text, i)
+        except json.JSONDecodeError:
+            i += 1
+            continue
+        if isinstance(obj, dict):
+            found = obj
+        i = end
+    return found
 
 
 def chat_json(tier: str, system: str, user: str, **kwargs) -> dict:
-    """Ask for a JSON object and parse it robustly."""
-    text = chat(
-        tier,
-        [{"role": "system", "content": system}, {"role": "user", "content": user}],
-        temperature=0,
-        **kwargs,
-    )
-    # Reasoning models may wrap JSON in prose or code fences.
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-    if not match:
-        raise ValueError(f"Model did not return JSON: {text[:200]}")
-    return json.loads(match.group(0))
+    """Ask for a JSON object and parse it robustly (one retry if the reply has no JSON)."""
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    text = ""
+    for attempt in range(2):
+        text = chat(tier, messages, temperature=0, **kwargs)
+        found = _extract_json(text)
+        if found is not None:
+            return found
+        messages.append({"role": "user", "content": "Reply with ONLY the JSON object, nothing else."})
+    raise ValueError(f"Model did not return JSON: {text[:200]!r}")

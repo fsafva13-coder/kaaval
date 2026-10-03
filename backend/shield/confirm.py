@@ -76,6 +76,21 @@ def eligible(sender: dict) -> bool:
     return sender["refusals"] >= MIN_SENSITIVE_MESSAGES and len(signals) >= MIN_SIGNALS
 
 
+def _rule_verdict(sender: dict, flagged: list[dict], source: str) -> dict:
+    """Decision without a model: used in mock mode and if the model call fails."""
+    signals = set(sender["signals"])
+    is_fraud = "persistence" in signals or "injection" in signals or "known_scam" in signals
+    return {
+        "is_fraud": is_fraud,
+        "confidence": 0.9 if is_fraud else 0.3,
+        "evidence": flagged,
+        "tactics": sorted(signals),
+        "explanation_en": "This sender asked for your private details more than once after being refused.",
+        "explanation_ml": "നിരസിച്ചതിനു ശേഷവും ഈ വ്യക്തി നിങ്ങളുടെ സ്വകാര്യ വിവരങ്ങൾ വീണ്ടും ആവശ്യപ്പെട്ടു.",
+        "source": source,
+    }
+
+
 def confirm(sender: dict, history: list[dict]) -> dict:
     flagged = _flagged(history)
 
@@ -83,19 +98,16 @@ def confirm(sender: dict, history: list[dict]) -> dict:
         return {"is_fraud": False, "confidence": 0.0, "evidence": flagged, "reason": "not enough signals"}
 
     if llm.is_mock():
-        signals = set(sender["signals"])
-        is_fraud = "persistence" in signals or "injection" in signals or "known_scam" in signals
-        return {
-            "is_fraud": is_fraud,
-            "confidence": 0.9 if is_fraud else 0.3,
-            "evidence": flagged,
-            "tactics": sorted(signals),
-            "explanation_en": "This sender asked for your private details more than once after being refused.",
-            "explanation_ml": "നിരസിച്ചതിനു ശേഷവും ഈ വ്യക്തി നിങ്ങളുടെ സ്വകാര്യ വിവരങ്ങൾ വീണ്ടും ആവശ്യപ്പെട്ടു.",
-            "source": "mock",
-        }
+        return _rule_verdict(sender, flagged, "mock")
 
-    verdict = llm.chat_json("super", SUPER_SYSTEM, _transcript(history), max_tokens=1000)
+    try:
+        verdict = llm.chat_json("super", SUPER_SYSTEM, _transcript(history), max_tokens=4000)
+    except llm.BudgetExceeded:
+        raise
+    except Exception as exc:  # model hiccup: decide by the rules, never crash the chat
+        fallback = _rule_verdict(sender, flagged, "rules-fallback")
+        fallback["model_error"] = str(exc)[:200]
+        return fallback
     verdict["is_fraud"] = bool(verdict.get("is_fraud")) and float(verdict.get("confidence", 0)) >= 0.7
     evidence = []
     for e in verdict.get("evidence") or []:
