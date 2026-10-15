@@ -20,9 +20,15 @@ Personal AI agents now answer customers for small sellers, which makes the agent
 NVIDIA Nemotron 3 (Nano, Super, Ultra) · Nebius Token Factory · Tavily · FastAPI · SQLite · React + Vite · Tailwind CSS
 
 ## Screenshots / Demo
-[Screenshot: split screen, innocent customer vs fraudster]
-[Screenshot: red Access ended screen]
-[Screenshot: owner evidence alert in Malayalam]
+**One shop, two senders.** A real customer writing in Manglish is served and gets the payment link. A fraudster asking for the owner's OTP is refused once, and blocked when they push again.
+
+![Kaaval demo flow: innocent customer served, fraudster refused, then blocked](docs/screenshots/kaaval-demo-flow.png)
+
+**What the owner sees.** Every block comes with the exact messages as evidence, a plain-English line for each, the explanation in English and Malayalam, and a one-tap Unblock.
+
+![Kaaval owner dashboard with a fraud alert and evidence](docs/screenshots/kaaval-owner-dashboard.png)
+
+*Screenshots taken in free mock mode (rule-based replies). With Nemotron switched on, replies are written by Nemotron Super and the English line under each piece of evidence is a translation.*
 
 ## Installation
 Requires Python 3.11 and Node.js 18+.

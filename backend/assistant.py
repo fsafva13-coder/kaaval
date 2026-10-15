@@ -4,12 +4,13 @@ Live mode: Nemotron Super writes every reply.
 Mock mode: a rule-based order flow (English + Manglish) so the app works
 offline and free. It fills four order details: item, date, area, card message.
 """
+import os
 import re
 
 from . import llm
 from .config import BUSINESS_NAME, MOCK_REPLIES
 
-PAYMENT_LINK = "[PAYMENT_LINK]"  # replace with your real payment link
+PAYMENT_LINK = os.getenv("PAYMENT_LINK") or "[PAYMENT_LINK]"  # set your real payment link in .env
 
 SYSTEM = f"""You are the friendly assistant for {BUSINESS_NAME}, a luxury bouquet and gift hamper
 shop in Dubai. Reply in the customer's language style (English, Manglish, Arabizi or Hinglish),
@@ -69,7 +70,8 @@ def remember(profile: dict, text: str) -> dict:
             break
     d = DATE.search(text)
     if d:
-        order["date"] = d.group(0)
+        words = {"nale": "tomorrow", "innu": "today", "tonight": "tonight"}
+        order["date"] = words.get(d.group(0).lower(), d.group(0))
     for area in AREAS:
         if re.search(rf"\b{re.escape(area)}\b", low):
             order["area"] = area.title() if area != "jlt" else "JLT"
@@ -113,8 +115,9 @@ def _mock_reply(text: str, profile: dict) -> str:
             item = f" {order['item']}" if order.get("item") else ""
             return f"Lovely choice{name}! To prepare your{item} order, please share {_join(missing)}."
         card = "no card" if order["card"] == "no card" else f"card: “{order['card']}”"
+        when = order["date"] if order["date"].lower() in ("today", "tonight", "tomorrow") else f"on {order['date']}"
         return (
-            f"Perfect{name}! Your order: {order['item']}, delivered to {order['area']} on {order['date']}, {card}. "
+            f"Perfect{name}! Your order: {order['item']}, delivered to {order['area']} {when}, {card}. "
             f"Please complete payment here to confirm: {PAYMENT_LINK} 🌸"
         )
 
