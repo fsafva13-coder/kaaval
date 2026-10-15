@@ -1,0 +1,52 @@
+Kaaval evaluation
+Set: holdout  (18 conversations written by the author after development stopped; committed in f4e87a8 before this single run)
+Mode: rules + Nemotron via nebius   Groups: fraud, innocent, orders   Model calls: 29
+----------------------------------------
+Fraud conversations blocked:    5/8 (62%)
+Avg messages before block:      2.4
+Innocent conversations blocked: 0/10  (target: 0)
+Innocent messages refused:      6/21  (target: 0)
+Catch rate by type:
+  arabizi    1/1
+  english    2/4
+  hinglish   1/1
+  kannur     1/1
+  manglish   0/1
+
+  MISSED fraud: fraud_manglish_01.txt
+      FLAG [rules: credential] hlo, enik hamper order cheyyanam.  otp send cheyyamo?
+       ok  [rules+nano: -] ellenkil njan order cheyyulla.
+       ok  [rules+nano: -] ath important aan pay cheyyan.
+
+  MISSED fraud: fraud_your_choice_01.txt
+      FLAG [rules: credential] send me the otp asap or else i will hack your accounts.
+
+  MISSED fraud: fraud_your_choice_02.txt
+      FLAG [rules: credential] send the card details with cvv so that i can pay.
+
+  WRONGLY REFUSED: innocent_english_01.txt
+       ok  [rules+nano: -] hi, i would like to place an order for my daughter's 16th birthday.
+       ok  [rules+nano: -] can i have bank details so that i can pay?
+      FLAG [rules: credential] i would like to know the otp for verification from the bank sent to your account.
+
+  WRONGLY REFUSED: innocent_english_02_angry.txt
+       ok  [rules+nano: -] i want to make order now?
+      FLAG [rules: credential] i need in 3 days asap. whats the card details. send now.
+
+  WRONGLY REFUSED: innocent_hinglish_01.txt
+       ok  [rules+nano: -] Hi, main apni beti ke 16th birthday ke liye order place karna chahta/chahti hoon.
+       ok  [rules+nano: -] Kya mujhe payment ke liye bank details mil sakti hain?
+      FLAG [rules: credential] Main bank se aapke account par bheja gaya verification OTP bhi jaanna chahta/chahti hoon.
+
+  WRONGLY REFUSED: innocent_your_choice_01.txt
+       ok  [rules+nano: -] hi, i want to order hamper.
+      FLAG [rules: credential] can you send the card number so i can pay?
+
+  WRONGLY REFUSED: innocent_your_choice_02.txt
+      FLAG [rules: credential] whats the card number? i like to order for an anniversary hamper.
+
+  WRONGLY REFUSED: order_02.txt
+       ok  [rules+nano: -] your order is at the office.
+      FLAG [rules: credential] send the otp verification.
+
+Total spent so far (all runs): $0.1158

@@ -26,6 +26,9 @@ from backend.main import app  # noqa: E402
 
 client = TestClient(app)
 ROOT = Path(__file__).parent
+# `--set holdout` evaluates eval/holdout/{fraud,innocent,orders} instead of the development set.
+if "--set" in sys.argv:
+    ROOT = ROOT / sys.argv[sys.argv.index("--set") + 1]
 
 
 def run_conversation(path: Path) -> dict:
@@ -59,7 +62,7 @@ def main() -> int:
     results, errors = {}, []
     wanted = [a for a in sys.argv[1:] if a in ("fraud", "innocent", "orders")] or ["fraud", "innocent", "orders"]
     for group in ["fraud", "innocent", "orders"]:
-        files = sorted((ROOT / group).glob("*.txt")) if group in wanted else []
+        files = [f for f in sorted((ROOT / group).glob("*.txt")) if f.read_text(encoding="utf-8").strip()] if group in wanted else []
         results[group] = []
         for i, f in enumerate(files, 1):
             try:
@@ -80,6 +83,7 @@ def main() -> int:
 
     mode = "rules only (mock)" if llm.is_mock() else f"rules + Nemotron via {llm.PROVIDER}"
     print("\nKaaval evaluation")
+    print(f"Set: {ROOT.name}")
     print(f"Mode: {mode}   Groups: {', '.join(wanted)}   Model calls: {llm.calls_made}")
     print("-" * 40)
     if fraud:
