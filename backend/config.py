@@ -75,6 +75,9 @@ DAILY_MESSAGE_LIMIT = int(os.getenv("DAILY_MESSAGE_LIMIT", "30"))
 
 # --- Storage --------------------------------------------------------------
 DB_PATH = Path(os.getenv("KAAVAL_DB", ROOT / "kaaval.db"))
+# Spend is tracked in its own file so tests and evaluations (which use a
+# temporary chat database) still count toward the budget cap.
+SPEND_DB_PATH = Path(os.getenv("KAAVAL_SPEND_DB", ROOT / "spend.db"))
 
 # --- Business persona -----------------------------------------------------
 BUSINESS_NAME = os.getenv("BUSINESS_NAME", "mirae.luxe_")

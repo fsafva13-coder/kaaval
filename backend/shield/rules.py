@@ -43,12 +43,16 @@ GIVE = re.compile(
 
 # Innocent: a customer talking about THEIR OWN code ("my OTP isn't coming").
 OWN_CREDENTIAL = re.compile(
-    r"\b(my|ente|mera|meri|mine)\s+(otp|pin|cvv|card|password|passcode)|"
-    r"\botp\s+(is\s*n.?t|not|illa|varunnilla|vannilla|didn.?t)|"
+    r"\b(my|ente|ante|ende|mera|meri|mine)\s+(otp|pin|cvv|card|password|passcode)|"
+    r"\botp\s+(is\s*n.?t|not|illa|varunnilla|verunnilla|vannilla|vannitilla|kittunnilla|kittiyilla|didn.?t|nahi)|"
     r"(didn.?t|did\s+not|haven.?t|not)\s+(get|got|receive|received)\s+(the\s+|an?\s+|my\s+)?otp|"
     r"\bi\s+(got|received|have)\s+(the\s+|an?\s+)?otp",
     re.I,
 )
+# Innocent: asking about a product's own code (a gift card's PIN is not the owner's secret).
+PRODUCT_CODE = re.compile(r"\b(gift\s*card|voucher|coupon|promo)\b", re.I)
+# Innocent: the customer describing which of THEIR accounts they paid from.
+OWN_ACCOUNT = re.compile(r"\b(i\s+(have\s+)?paid|i\s+sent|paid\s+it)\s+from\b|\bfrom\s+my\s+(new|other|different)\b", re.I)
 
 # Innocent: a customer asking how to pay the seller.
 BENIGN_PAY = re.compile(
@@ -111,11 +115,13 @@ def screen(text: str) -> dict:
             span = span or m.group(0)
 
     hit(INJECTION, "injection")
-    hit(REDIRECT, "payment_redirect")
+    if not OWN_ACCOUNT.search(text):
+        hit(REDIRECT, "payment_redirect")
 
     # A shop never needs a customer to mention the owner's OTP/PIN/CVV/password,
     # so any such mention counts, unless it is clearly about the customer's own.
-    if not OWN_CREDENTIAL.search(text):
+    product_question = PRODUCT_CODE.search(text) and not (YOUR.search(text) or GIVE.search(text))
+    if not OWN_CREDENTIAL.search(text) and not product_question:
         hit(CREDENTIAL, "credential")
     # Identity documents only count when asked FROM the owner
     # ("do you need my passport?" is innocent).

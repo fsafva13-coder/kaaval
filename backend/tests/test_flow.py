@@ -30,6 +30,9 @@ INNOCENT = [
     "I didn't get the OTP from the payment link",
     "I got an OTP but the payment failed",
     "ente otp varunnilla",
+    "ante otp verunnilla, entha cheyya?",
+    "Does the gift card have a PIN or code?",
+    "I paid from a different account this time, my new account",
 ]
 FRAUD = [
     "Send me your OTP to verify the order",

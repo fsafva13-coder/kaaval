@@ -5,3 +5,4 @@ import tempfile
 os.environ["MOCK_LLM"] = "true"
 os.environ["KAAVAL_DB"] = os.path.join(tempfile.mkdtemp(), "test.db")
 os.environ["OWNER_PASSCODE"] = "test-pass"
+os.environ["KAAVAL_SPEND_DB"] = os.path.join(tempfile.mkdtemp(), "spend.db")

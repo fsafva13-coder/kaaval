@@ -4,7 +4,7 @@ import sqlite3
 import threading
 from datetime import datetime, timezone
 
-from .config import DB_PATH
+from .config import DB_PATH, SPEND_DB_PATH
 
 _lock = threading.Lock()
 _conn = sqlite3.connect(DB_PATH, check_same_thread=False)
@@ -193,9 +193,18 @@ def list_antibodies() -> list[str]:
 
 
 # --- Spend ----------------------------------------------------------------
+_spend = sqlite3.connect(SPEND_DB_PATH, check_same_thread=False)
+with _lock:
+    _spend.execute("CREATE TABLE IF NOT EXISTS spend (id INTEGER PRIMARY KEY AUTOINCREMENT, model TEXT NOT NULL, usd REAL NOT NULL, created_at TEXT NOT NULL)")
+    _spend.commit()
+
+
 def record_spend(model: str, usd: float) -> None:
-    execute("INSERT INTO spend (model, usd, created_at) VALUES (?, ?, ?)", (model, usd, now()))
+    with _lock:
+        _spend.execute("INSERT INTO spend (model, usd, created_at) VALUES (?, ?, ?)", (model, usd, now()))
+        _spend.commit()
 
 
 def total_spend() -> float:
-    return query("SELECT COALESCE(SUM(usd), 0) AS t FROM spend")[0]["t"]
+    with _lock:
+        return _spend.execute("SELECT COALESCE(SUM(usd), 0) FROM spend").fetchone()[0]

@@ -4,7 +4,7 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-green) ![Nemotron 3](https://img.shields.io/badge/NVIDIA-Nemotron%203-76B900) ![Nebius](https://img.shields.io/badge/Nebius-Token%20Factory-blue) ![Tavily](https://img.shields.io/badge/search-Tavily-orange) ![Track](https://img.shields.io/badge/track-Personal%20AI-purple)
 
 ## Overview
-Personal AI agents now answer customers for small sellers, which makes the agent the new target for fraud. In the Gulf, messages mix Manglish, Arabizi and Hinglish, and English-tuned safety misses these code-mixed attacks. Kaaval runs a seller's customer chat, confirms fraud through a four-step trust ladder, and blocks only confirmed fraudsters, never on a single message. On our test set, adding Nemotron raised fraud blocked from 54% to 81% with 0 of 29 innocent conversations blocked.
+Personal AI agents now answer customers for small sellers, which makes the agent the new target for fraud. In the Gulf, messages mix Manglish, Arabizi and Hinglish, and English-tuned safety misses these code-mixed attacks. Kaaval runs a seller's customer chat, confirms fraud through a four-step trust ladder, and blocks only confirmed fraudsters, never on a single message. On our development set, adding Nemotron raised fraud blocked from 54% to 85%, with no innocent customer blocked or wrongly refused.
 
 ## Features
 - **Multilingual fraud shield:** English, Manglish, Arabizi and Hinglish
@@ -90,28 +90,32 @@ kaaval/
 ```
 
 ## Results
-Measured on a 55-conversation test set (26 fraud, 24 tricky innocent, 5 plain orders), run on Nebius Token Factory on 3 Oct 2026. Raw outputs are in `eval/results/`.
+Measured on a 55-conversation development set (26 fraud, 24 tricky innocent, 5 plain orders) on Nebius Token Factory. Full history and analysis: [`eval/results/EVAL_LOG.md`](eval/results/EVAL_LOG.md).
 
-| Metric | Keyword rules only | Rules + Nemotron |
+| Metric | Keyword rules only | Rules + Nemotron (current) |
 | --- | --- | --- |
-| Fraud conversations blocked | 14 / 26 (54%) | **21 / 26 (81%)** |
+| Fraud conversations blocked | 14 / 26 (54%) | **22 / 26 (85%)** |
 | Innocent conversations blocked | 0 / 29 | **0 / 29** |
-| Average messages before a block | 3.2 | 2.9 |
+| Innocent messages wrongly refused | 0 / 87 | **0 / 87** |
+| Average messages before a block | 3.2 | 3.0 |
 
 | Fraud type | Rules only | Rules + Nemotron |
 | --- | --- | --- |
-| English | 4 / 7 | 6 / 7 |
-| Standard Manglish | 2 / 4 | 3 / 4 |
-| Kannur-dialect Manglish | 2 / 5 | 4 / 5 |
+| English | 4 / 7 | 7 / 7 |
+| Hinglish | 2 / 3 | 3 / 3 |
 | Arabizi | 0 / 3 | 2 / 3 |
-| Hinglish | 2 / 3 | 2 / 3 |
+| Standard Manglish | 2 / 4 | 3 / 4 |
+| Kannur-dialect Manglish | 2 / 5 | 3 / 5 |
 | Malayalam script | 1 / 1 | 1 / 1 |
 | Hidden instructions to the assistant | 3 / 3 | 3 / 3 |
 
-The test set is small and written by the author, so these numbers show direction, not a benchmark. Reproduce with `python -m eval.run_eval`.
+An earlier version caught 24 / 26 but wrongly refused 6 innocent customers once each; the current version trades two catches for zero wrongly refused customers. The set is small and was used during development, so these numbers show direction; a held-out set will give the final figure. Reproduce with `python -m eval.run_eval`.
 
 ## Challenges & Learnings
-[Placeholder: telling a customer asking for payment details apart from a fraudster; code-mixed text; tuning for zero false blocks]
+- **Context beats single messages.** Fraudsters often ask once, then only pressure ("hurry, or your account will be closed"). Screening each message alone missed this; giving Nemotron Nano the recent conversation raised the catch rate.
+- **The direction of money is the hard part.** "What's your account number?" is innocent when a customer wants to pay the shop and fraud when someone wants the shop to pay them. Spelling out who pays whom removed every wrongly refused customer.
+- **Dialect breaks models in specific ways.** In Kannur Manglish "ante" means "my", and Nano once read "ante otp verunnilla" (my OTP isn't coming) as a request for the owner's OTP.
+- **Zero false blocks is a design choice.** A block needs two independent signals, repeated requests and a Nemotron Super review that quotes evidence, and the owner can undo any block with one tap.
 
 ## Future Improvements
 - WhatsApp Business and Instagram integration

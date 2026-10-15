@@ -65,7 +65,7 @@ def chat(body: ChatIn):
 
     try:
         sender = db.get_sender(body.sender_id, body.device_id)
-        verdict = screen.screen(body.text)
+        verdict = screen.screen(body.text, db.history(body.sender_id, limit=6))
         db.add_message(body.sender_id, "user", body.text, verdict)
         decision = ladder.step(sender, body.text, verdict)
 
