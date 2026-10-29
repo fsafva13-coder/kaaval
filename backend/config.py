@@ -82,5 +82,5 @@ DB_PATH = Path(os.getenv("KAAVAL_DB", ROOT / "kaaval.db"))
 SPEND_DB_PATH = Path(os.getenv("KAAVAL_SPEND_DB", ROOT / "spend.db"))
 
 # --- Business persona -----------------------------------------------------
-BUSINESS_NAME = os.getenv("BUSINESS_NAME", "mirae.luxe_")
+BUSINESS_NAME = os.getenv("BUSINESS_NAME", "Demo Gift Shop")
 OWNER_PASSCODE = os.getenv("OWNER_PASSCODE", "change-me")

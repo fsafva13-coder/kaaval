@@ -64,7 +64,7 @@ export default function Owner() {
       <header className="flex items-end justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-serif text-3xl text-rose-dark">Kaaval · Owner dashboard</h1>
-          <p className="text-sm text-ink/60">mirae.luxe_ assistant · updates every 3 seconds</p>
+          <p className="text-sm text-ink/60">Demo Gift Shop assistant · updates every 3 seconds</p>
         </div>
         {budget && <Budget b={budget} />}
       </header>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import BlockedScreen from "../components/BlockedScreen.jsx";
 import { chatStatus, newIdentity, sendMessage } from "../api.js";
 
-const WELCOME = { role: "assistant", text: "Welcome to mirae.luxe_ 🌸 How can I help you today?" };
+const WELCOME = { role: "assistant", text: "Welcome to Demo Gift Shop 🌸 How can I help you today?" };
 
 export default function Chat() {
   const [messages, setMessages] = useState([WELCOME]);
@@ -47,7 +47,7 @@ export default function Chat() {
   return (
     <div className="min-h-screen flex flex-col max-w-2xl mx-auto">
       <header className="px-6 pt-8 pb-5 border-b border-gold/30 text-center">
-        <h1 className="font-serif text-4xl tracking-wide text-rose-dark">mirae.luxe_</h1>
+        <h1 className="font-serif text-4xl tracking-wide text-rose-dark">Demo Gift Shop</h1>
         <p className="mt-1 text-xs uppercase tracking-[0.25em] text-gold">Bouquets · Gift hampers · Dubai</p>
         <p className="mt-3 text-xs text-ink/50">Assistant protected by Kaaval</p>
       </header>
