@@ -1,0 +1,26 @@
+# Render blueprint: one free web service built from the Dockerfile.
+services:
+  - type: web
+    name: kaaval
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: MOCK_LLM
+        value: "false"
+      - key: PROVIDER
+        value: nebius
+      - key: NEBIUS_API_KEY
+        sync: false          # set the secret in the Render dashboard, never in git
+      - key: OWNER_PASSCODE
+        sync: false
+      - key: BUDGET_WARN_USD
+        value: "15"
+      - key: BUDGET_HARD_CAP_USD
+        value: "20"
+      - key: DAILY_MESSAGE_LIMIT
+        value: "30"
+      - key: IP_DAILY_MESSAGE_LIMIT
+        value: "80"
+      - key: GLOBAL_DAILY_MESSAGE_LIMIT
+        value: "600"

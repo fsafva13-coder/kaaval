@@ -71,7 +71,9 @@ BUDGET_HARD_CAP_USD = float(os.getenv("BUDGET_HARD_CAP_USD", "40"))
 BUDGET_WARN_USD = float(os.getenv("BUDGET_WARN_USD", "30"))
 
 # --- Demo protection ------------------------------------------------------
-DAILY_MESSAGE_LIMIT = int(os.getenv("DAILY_MESSAGE_LIMIT", "30"))
+DAILY_MESSAGE_LIMIT = int(os.getenv("DAILY_MESSAGE_LIMIT", "30"))        # per visitor
+IP_DAILY_MESSAGE_LIMIT = int(os.getenv("IP_DAILY_MESSAGE_LIMIT", "80"))   # per network address
+GLOBAL_DAILY_MESSAGE_LIMIT = int(os.getenv("GLOBAL_DAILY_MESSAGE_LIMIT", "600"))  # whole demo, per day
 
 # --- Storage --------------------------------------------------------------
 DB_PATH = Path(os.getenv("KAAVAL_DB", ROOT / "kaaval.db"))
