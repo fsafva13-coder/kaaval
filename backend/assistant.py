@@ -10,11 +10,11 @@ import re
 from . import llm
 from .config import BUSINESS_NAME, MOCK_REPLIES
 
-PAYMENT_LINK = os.getenv("PAYMENT_LINK") or "[PAYMENT_LINK]"  # set your real payment link in .env
+PAYMENT_LINK = os.getenv("PAYMENT_LINK") or "the payment link we send you"  # set your real payment link in .env
 
 SYSTEM = f"""You are the friendly assistant for {BUSINESS_NAME}, a luxury bouquet and gift hamper
-shop in Dubai. Reply in the customer's language style (English, Manglish, Arabizi or Hinglish),
-warmly and briefly (max 3 sentences).
+shop in Dubai. Customers may write in English, Manglish, Arabizi or Hinglish; understand them
+fully, but always reply in clear, simple English, warmly and briefly (max 3 sentences).
 You can: describe bouquets and hampers, take orders (item, date, delivery area, card message),
 explain delivery (same day in Dubai for orders before 4 pm, otherwise next day), and share the
 official payment link: {PAYMENT_LINK}.
@@ -101,7 +101,7 @@ def _mock_reply(text: str, profile: dict) -> str:
     started = bool(order)
 
     if PAY_Q.search(text):
-        return f"Of course{name}! You can pay securely here: {PAYMENT_LINK}. We confirm your order as soon as it's received."
+        return f"Of course{name}! You can pay securely through {PAYMENT_LINK}. We confirm your order as soon as it's received."
     if DELIVERY_Q.search(text):
         reply = "We deliver across Dubai: same day for orders before 4 pm, otherwise next day. Other emirates take 1–2 days."
         missing = _missing(order) if started else []
@@ -118,7 +118,7 @@ def _mock_reply(text: str, profile: dict) -> str:
         when = order["date"] if order["date"].lower() in ("today", "tonight", "tomorrow") else f"on {order['date']}"
         return (
             f"Perfect{name}! Your order: {order['item']}, delivered to {order['area']} {when}, {card}. "
-            f"Please complete payment here to confirm: {PAYMENT_LINK} 🌸"
+            f"Please complete payment through {PAYMENT_LINK} to confirm 🌸"
         )
 
     if GREETING.search(text):
@@ -134,4 +134,5 @@ def reply(text: str, history: list[dict], profile: dict) -> str:
     for m in history[-10:]:
         messages.append({"role": "user" if m["role"] == "user" else "assistant", "content": m["text"]})
     messages.append({"role": "user", "content": text})
-    return llm.chat("super", messages, temperature=0.4, max_tokens=1200)
+    text = llm.chat("super", messages, temperature=0.4, max_tokens=1200).strip()
+    return text or _mock_reply(text, profile)
