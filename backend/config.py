@@ -24,9 +24,12 @@ PROVIDERS = {
         "base_url": "https://api.tokenfactory.nebius.com/v1/",
         "api_key_env": "NEBIUS_API_KEY",
         "models": {
-            "nano": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
-            "super": "nvidia/nemotron-3-super-120b-a12b",
-            "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b",
+            # Override with NEBIUS_*_MODEL when Token Factory retires a model.
+            # Nano and Super leave Serverless on 9 Nov 2026; Nebius recommends
+            # nvidia/Nemotron-3_5-Lightning and nvidia/Nemotron-3.5-Super-VL.
+            "nano": os.getenv("NEBIUS_NANO_MODEL", "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"),
+            "super": os.getenv("NEBIUS_SUPER_MODEL", "nvidia/nemotron-3-super-120b-a12b"),
+            "ultra": os.getenv("NEBIUS_ULTRA_MODEL", "nvidia/Nemotron-3-Ultra-550b-a55b"),
         },
     },
     "openrouter": {
