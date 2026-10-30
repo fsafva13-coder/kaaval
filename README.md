@@ -147,7 +147,7 @@ Both sets are small and written by the author, so they show direction, not a ben
 [Placeholder]
 
 ## Demo
-Live: [URL] · Video: [YouTube URL]
+Live: https://kaaval-mwk3.onrender.com (free server: the first load can take about a minute) · Video: https://youtu.be/UDNanDXNAqM
 
 ## License
 MIT
