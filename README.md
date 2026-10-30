@@ -17,7 +17,7 @@ Personal AI agents now answer customers for small sellers, which makes the agent
 - **Mock mode:** the whole app runs offline for free while building
 
 ## Tech Stack
-NVIDIA Nemotron 3 (Nano, Super, Ultra) · Nebius Token Factory · FastAPI · SQLite · React + Vite · Tailwind CSS
+NVIDIA Nemotron 3 / 3.5 (Lightning, Super-VL, Ultra) · Nebius Token Factory · FastAPI · SQLite · React + Vite · Tailwind CSS
 
 ## Screenshots / Demo
 **One shop, two senders.** A real customer writing in Manglish is served and gets the payment link. A fraudster asking for the owner's OTP is refused once, and blocked when they push again.
@@ -70,9 +70,9 @@ The repo includes a `Dockerfile` and `render.yaml`. On Render: **New → Bluepri
 ## How Nemotron and Nebius are used
 | Job | Model | Why |
 | --- | --- | --- |
-| Screen every message | Nemotron 3 Nano | fast and cheap; runs after free rule checks |
-| Confirm before blocking | Nemotron 3 Super | reads the whole conversation and quotes evidence |
-| Customer replies | Nemotron 3 Super | multilingual, on-brand answers |
+| Screen every message | Nemotron 3.5 Lightning (was 3 Nano) | fast and cheap; runs after free rule checks |
+| Confirm before blocking | Nemotron 3.5 Super-VL (was 3 Super) | reads the whole conversation and quotes evidence |
+| Customer replies | Nemotron 3.5 Super-VL (was 3 Super) | multilingual, on-brand answers |
 | Red-team new attacks (planned) | Nemotron 3 Ultra | connected and tested; next step is generating new code-mixed fraud scripts |
 
 All calls go through Token Factory's OpenAI-compatible API in `backend/llm.py`.
@@ -114,13 +114,15 @@ One real weakness: in Manglish, pressure that follows a refused request without 
 
 **Development set.** 55 conversations (26 fraud, 24 tricky innocent, 5 plain orders), used while building, so these numbers are flattering.
 
-| Metric | Keyword rules only | Rules + Nemotron |
-| --- | --- | --- |
-| Fraud conversations blocked | 14 / 26 (54%) | 22 / 26 (85%) |
-| Innocent conversations blocked | 0 / 29 | 0 / 29 |
-| Innocent messages wrongly refused | 0 / 87 | 0 / 87 |
+| Metric | Keyword rules only | Rules + Nemotron 3 | Rules + Nemotron 3.5 (current) |
+| --- | --- | --- | --- |
+| Fraud conversations blocked | 14 / 26 (54%) | 22 / 26 (85%) | **25 / 26 (96%)** |
+| Innocent conversations blocked | 0 / 29 | 0 / 29 | **0 / 29** |
+| Innocent messages wrongly refused | 0 / 87 | 0 / 87 | **0 / 87** |
 
-| Fraud type (development set) | Rules only | Rules + Nemotron |
+Nebius retires the Nemotron 3 Nano and Super models on Nov 9, 2026, so Kaaval now runs on their replacements (3.5 Lightning and 3.5 Super-VL) with the same rules and prompts. The held-out set has not been re-run on the new models yet.
+
+| Fraud type (development set) | Rules only | Rules + Nemotron 3 |
 | --- | --- | --- |
 | English | 4 / 7 | 7 / 7 |
 | Hinglish | 2 / 3 | 3 / 3 |

@@ -68,3 +68,19 @@ Writing realistic innocent-but-suspicious messages is harder than writing scams.
 - Nano's instructions were adjusted after seeing these results, which flatters scores on this set.
   The held-out result above, from a set written after development stopped, is the number to quote.
 - Model outputs vary slightly between runs; a difference of one or two conversations is within noise.
+
+## v3: Nemotron 3.5 models (2026-10-30)
+
+Nebius retires Nemotron 3 Nano 30B and Nemotron 3 Super 120B on Nov 9, 2026, so Kaaval moved to their replacements:
+`nvidia/Nemotron-3_5-Lightning` (screening) and `nvidia/Nemotron-3.5-Super-VL` (replies and final review). Rules and prompts unchanged;
+only Nano's token limit was raised (1500 → 4000) because the new model's reasoning used up the old limit and returned nothing.
+
+| Development set | v2 (Nemotron 3) | v3 (Nemotron 3.5) |
+|---|---|---|
+| Fraud conversations blocked | 22/26 | **25/26** |
+| Innocent conversations blocked | 0/29 | **0/29** |
+| Innocent messages refused | 0/87 | **0/87** |
+
+- Remaining miss: Kannur courier scam. "Vegam ayakk, ellenkil parcel return aavu" (send it fast, or the parcel goes back) after a refused card/CVV request is still not read as pressure. Left unfixed on purpose rather than tuned to one example.
+- The held-out set was not re-run with the new models; the held-out numbers above are from Nemotron 3.
+- Same caveat as before: small author-written set, so this shows direction, not a benchmark.

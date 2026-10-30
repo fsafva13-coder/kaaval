@@ -27,8 +27,8 @@ PROVIDERS = {
             # Override with NEBIUS_*_MODEL when Token Factory retires a model.
             # Nano and Super leave Serverless on 9 Nov 2026; Nebius recommends
             # nvidia/Nemotron-3_5-Lightning and nvidia/Nemotron-3.5-Super-VL.
-            "nano": os.getenv("NEBIUS_NANO_MODEL", "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"),
-            "super": os.getenv("NEBIUS_SUPER_MODEL", "nvidia/nemotron-3-super-120b-a12b"),
+            "nano": os.getenv("NEBIUS_NANO_MODEL", "nvidia/Nemotron-3_5-Lightning"),
+            "super": os.getenv("NEBIUS_SUPER_MODEL", "nvidia/Nemotron-3.5-Super-VL"),
             "ultra": os.getenv("NEBIUS_ULTRA_MODEL", "nvidia/Nemotron-3-Ultra-550b-a55b"),
         },
     },

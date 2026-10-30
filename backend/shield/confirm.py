@@ -110,6 +110,7 @@ def confirm(sender: dict, history: list[dict]) -> dict:
         fallback = _rule_verdict(sender, flagged, "rules-fallback")
         fallback["model_error"] = str(exc)[:200]
         return fallback
+    verdict["model_confidence"] = verdict.get("confidence")
     verdict["is_fraud"] = bool(verdict.get("is_fraud")) and float(verdict.get("confidence", 0)) >= 0.7
     evidence = []
     for e in verdict.get("evidence") or []:

@@ -56,6 +56,8 @@ def explain(result: dict) -> None:
         flag = "FLAG" if sc.get("sensitive") else " ok "
         why = ", ".join(sc.get("categories", [])) or "-"
         print(f"      {flag} [{sc.get('source', '?')}: {why}] {m['text'][:90]}")
+        if sc.get("model_error"):
+            print(f"           model error: {sc['model_error'][:160]}")
 
 
 def main() -> int:

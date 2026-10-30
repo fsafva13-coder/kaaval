@@ -78,7 +78,7 @@ def screen(text: str, context: list[dict] | None = None) -> dict:
     if llm.is_mock() or verdict["sensitive"]:
         return verdict
     try:
-        nano = llm.chat_json("nano", NANO_SYSTEM, _prompt(text, context), max_tokens=1500)
+        nano = llm.chat_json("nano", NANO_SYSTEM, _prompt(text, context), max_tokens=4000)
     except llm.BudgetExceeded:
         raise
     except Exception as exc:  # model hiccup: fall back to rules, never crash the chat
