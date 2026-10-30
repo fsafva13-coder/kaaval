@@ -143,11 +143,9 @@ Both sets are small and written by the author, so they show direction, not a ben
 - A shared antibody network across Kaaval users
 - Voice-note screening
 
-## Feedback on Nebius and NVIDIA
-[Placeholder]
-
 ## Demo
-Live: https://kaaval-mwk3.onrender.com (free server: the first load can take about a minute) · Video: https://youtu.be/UDNanDXNAqM
+Live: https://kaaval-mwk3.onrender.com (free server: the first load can take about a minute) 
+Video: https://youtu.be/UDNanDXNAqM
 
 ## License
 MIT
